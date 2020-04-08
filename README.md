@@ -1,6 +1,6 @@
 # aboutsub
 
-##aboutsub tool devolped by Hossam Mesbah
+#aboutsub tool devolped by Hossam Mesbah
 
 * When you testing and gathring the subdomains you need to test them
 
@@ -8,7 +8,7 @@
 
 * the unalive subdomains It is not calculated in the results
 
-##Usage
+#Usage
 
 python3 aboutsub.py -l list.txt -p 80,433,21,22,8433
 
