@@ -12,6 +12,10 @@
 
 python3 aboutsub.py -l list.txt -p 80,433,21,22,8433
 
+requirements 
+
+* pip3 -m requirements.txt 
+
 This for example usage
 
 This tool is devolped for get the response for an subdomains list In order not to try all of this in the browser, each sub-domain unit, and this is not logical 
