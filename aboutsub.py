@@ -39,7 +39,7 @@ def Chec_if_200L(listop, port):
 			except requests.exceptions.MissingSchema: pass
 			except requests.exceptions.InvalidURL: pass
 	except FileNotFoundError:
-		print('The file is not excest!')
+		print('Double check your list!')
 		exit()
 
 def Chec_if_200S(url, port):
