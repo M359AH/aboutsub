@@ -1,70 +1,76 @@
+#!/usr/bin/env python3
+
+
+# imports
+
 import requests
 import socket
 import threading
 import time
 import optparse
 
-speed = threading.BoundedSemaphore(value=20)
+# variables
+
+headers = requests.utils.default_headers()
+headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
+sema = threading.BoundedSemaphore(value=20)
+
+# lambda
+
+req = lambda url : requests.get(url, headers=headers)
+
+
+# functions
+
 def getOpenedPorts(ip,lop):
+
 	if lop == []:
-		print('http://www.{} Ok'.format(ip))
+		data = 'url : https://www.{}\nstatus : {}\nalive : Ok'.format(ip, req('https://{}'.format(ip)).status_code)
 	else:
 		ports = []
-		speed.acquire()
+		sema.acquire()
 		for p in lop:
 			s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+			s.settimeout(2)
+
 			scanOnp = s.connect_ex((socket.gethostbyname(ip), p))
 			if scanOnp == 0:
 				ports.append(p)
 			s.close()
 		
-		print('{}\nports : {}'.format(ip+' Ok ',ports))
-		print('------------------------')
+		data = 'url : https://www.{}\nstatus : {}\nports : {}\nalive : Ok'.format(ip, req('https://{}'.format(ip)).status_code,list(set(ports)))
+	print(data)	
+	print('------------------------')
 
-def Chec_if_200L(listop, port):
-	if port != []:
-		port = list(map(int, port.split(',')))
-	try:
-		f = open(listop,'r')
-		for i in f.readlines():
-			try:
-				if requests.get('http://{}'.format(i.strip('\n'))).status_code == 200:
-					#port = list(map(int, port.split(',')))
-					th = threading.Thread(target=getOpenedPorts, args=(i.strip('\n'),port))
-					th.start()
-				else:
-					print(i.strip('\n'), requests.get('http://www.{}'.format(i.strip('\n'))).status_code)
 
-			except requests.exceptions.ConnectionError: pass
-			except requests.exceptions.MissingSchema: pass
-			except requests.exceptions.InvalidURL: pass
-	except FileNotFoundError:
-		print('Double check your list!')
-		exit()
 
 def Chec_if_200S(url, port):
+	url = url.strip('\n')
 	if port != []:
 		port = list(map(int, port.split(',')))
 	try:
-		#requests.get('http://www.{}'.format(url)).status_code
-		if requests.get('http://{}'.format(url)).status_code == 200:
+		if 'http' in url or 'https' in url:
+			url = url.lstrip('http://www.').lstrip('https://www.')
+
+
+		if req('https://{}'.format(url)).status_code == 200:
 			th = threading.Thread(target=getOpenedPorts, args=(url,port))
 			th.start()
 		else:
-			print(url, 'No')
+			print('url : https://www.{}'.format(url))
+			print('status : {}\nalive : no'.format(req('https://{}'.format(url)).status_code))
+			print('------------------------')
 
-	except requests.exceptions.ConnectionError: pass
-	except requests.exceptions.MissingSchema: pass
-	except requests.exceptions.InvalidURL: pass
+	except requests.exceptions.ConnectionError:
+		print('No URL Named : http://{}'.format(url))
+		print('------------------------')
+	except requests.exceptions.SSLError:
+		print('SSL Certificate Error')
+		print('------------------------')
 
 
 
-#URLs = input('Enter your word list : ')
-#port = list(map(int, input('Enter list of ports : ').split()))
 
-#if len(port) == 0:
-#	print('no ports excets')
-#	exit()
 
 parse = optparse.OptionParser('''
 
@@ -75,11 +81,11 @@ parse = optparse.OptionParser('''
 (__)(__)(____/(_____)(______) (__) (___/(______)(____/
 
 	Note: dont use :
-		'https://www.domain.com or https://www.subdomain.com' 
+		'http://www.domain.com or https://www.subdomain.com' 
 
 	-p 			To also test ports in subdomains
 	-l 			List of subdomains you want to scan
-	-s 			To scan single subdomain
+	-s 			To scan single subdomains
 
 	''')
 parse.add_option('-p',dest="port",default=[])
@@ -90,25 +96,34 @@ parse.add_option('-s',dest="singelsub")
 
 (op , args) = parse.parse_args()
 
+
+print('this may take a while\n')
+time.sleep(2)
+
+# Driver Code 
+
+
 if op.listsd == None and op.singelsub == None:
 
 	print(parse.usage)
 
-	print('you must uose ( -l or -s ) to start scan')
+	print('you must uose ( -l Or -s ) to start scan')
 
 elif op.listsd != None:
 
-	print('this may take a while')
-	time.sleep(2)
+	try:
+		f = open(op.listsd, 'r')
+		for i in f.readlines():
+			Chec_if_200S(i, op.port)
 
-	Chec_if_200L(op.listsd, op.port)
+	except FileNotFoundError:
+		print('The file is not Exist!')
+		exit()
+
 
 elif op.singelsub != None:
 
-	print('this may take a while')
-	time.sleep(2)
 
 	Chec_if_200S(op.singelsub, op.port)
 
 	
-
