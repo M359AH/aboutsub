@@ -1,6 +1,6 @@
 # aboutsub
 
-# aboutsub tool devolped by Hossam Mesbah
+# aboutsub tool
 
 * When you testing and gathring the subdomains you need to test them
 
@@ -23,9 +23,3 @@ This tool is devolped for get the response for an subdomains list In order not t
 That is why this tool was developed to fetch the server response and obtain open portat in the subdomains Any sub-domain that does not work is skipped and is not calculated according to the results and only the domains that you do are extracted
 
 If you have any questions Contact me
-
-m359bah@outlook.com
-
-Special thanks
-
-@Ahmed_Talaat
